@@ -1,3 +1,5 @@
+package org.test
+
 class Line(private val line: String) {
 
     fun getLineSum() {
