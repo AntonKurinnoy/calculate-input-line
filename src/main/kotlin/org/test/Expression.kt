@@ -18,53 +18,61 @@ class SimpleExpressionEvaluator : ExpressionEvaluator {
     }
 
     override fun evaluate(exp: String): Double {
-        var expressions = parseExpression(exp)
-        expressions = calculateMultAndDiv(expressions)
-        expressions = calculateAddAndSub(expressions)
-        return when (val result = expressions.first()) {
+        val expressions = parseExpression(exp)
+        val expressionWithoutMultAndDiv = calculateMultAndDiv(expressions)
+        val result = calculateAddAndSub(expressionWithoutMultAndDiv)
+        return when (result) {
             is Expression.Number -> result.value
             else -> throw IllegalStateException("Invalid expression $exp")
         }
     }
 
-    private fun calculateMultAndDiv(expressions: List<Expression>): List<Expression> {
-        val newList = mutableListOf<Expression>()
-
-        expressions.forEachIndexed { index, el ->
-            if ((el is Expression.Operation) && (el.sign in listOf(Sign.DIV, Sign.MULT))) {
-                val newItem =
-                    calculate(newList.last() as Expression.Number, expressions.get(index + 1) as Expression.Number, el)
-                newList.removeLast()
-                newList.add(newItem)
-            } else {
-                if (index > 0) {
-                    val prevItem = expressions.get(index - 1)
-                    if ((prevItem is Expression.Operation) && (prevItem.sign in listOf(Sign.ADD, Sign.SUB))) {
-                        newList.add(prevItem)
-                        newList.add(el)
+    private fun calculateMultAndDiv(expressions: List<Expression>): List<Expression> =
+        expressions.foldIndexed(emptyList()) { index, acc, expression ->
+            when (index) {
+                0 -> acc + expression
+                else -> {
+                    when (expression) {
+                        is Expression.Operation -> if (expression.sign in listOf(Sign.DIV, Sign.MULT)) {
+                            val result = acc.dropLast(1)
+                            result + calculate(
+                                acc.last() as Expression.Number,
+                                expressions.elementAt(index + 1) as Expression.Number,
+                                expression
+                            )
+                        } else {
+                            acc + expression
+                        }
+                        is Expression.Number -> {
+                            val prevItem = expressions.elementAt(index - 1)
+                            when (prevItem) {
+                                is Expression.Operation -> if (prevItem.sign in listOf(Sign.ADD, Sign.SUB)) {
+                                    acc + expression
+                                } else {
+                                    acc
+                                }
+                                else -> {
+                                    acc
+                                }
+                            }
+                        }
                     }
-                } else newList.add(el)
+                }
             }
         }
 
-        return newList
-    }
-
-    private fun calculateAddAndSub(expressions: List<Expression>): List<Expression> {
-        val newList = mutableListOf<Expression>()
-        newList.add(expressions.first())
-
-        expressions.forEachIndexed { index, el ->
-            if ((el is Expression.Operation) && (el.sign in listOf(Sign.ADD, Sign.SUB))) {
-                val newItem =
-                    calculate(newList.last() as Expression.Number, expressions.get(index + 1) as Expression.Number, el)
-                newList.removeLast()
-                newList.add(newItem)
+    private fun calculateAddAndSub(expressions: List<Expression>): Expression =
+        expressions.reduceIndexed { index, sum, el ->
+            when (el) {
+                is Expression.Number -> sum
+                is Expression.Operation ->
+                    calculate(
+                        sum as Expression.Number,
+                        expressions.elementAt(index + 1) as Expression.Number,
+                        el
+                    )
             }
         }
-
-        return newList
-    }
 
     private fun calculate(
         number1: Expression.Number,
