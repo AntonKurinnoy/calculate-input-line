@@ -13,6 +13,9 @@ interface ExpressionEvaluator {
 }
 
 class SimpleExpressionEvaluator : ExpressionEvaluator {
+    companion object {
+        private val EXPRESSION_MATCH_REGEX = Regex("""((\d+)*[.]?(\d+))|([/,*,+,-])""")
+    }
 
     override fun evaluate(exp: String): Double {
         var expressions = parseExpression(exp)
@@ -74,20 +77,17 @@ class SimpleExpressionEvaluator : ExpressionEvaluator {
         Sign.SUB -> Expression.Number(number1.value - number2.value)
     }
 
-    private fun parseExpression(exp: String): List<Expression> {
-        val matchResult = Regex("""((\d+)*[.]?(\d+))|([/,*,+,-])""").findAll(exp)
-        val res = mutableListOf<Expression>()
-        matchResult.forEach {
-            when (it.value) {
-                Sign.DIV.text -> res.add(Expression.Operation(Sign.DIV))
-                Sign.MULT.text -> res.add(Expression.Operation(Sign.MULT))
-                Sign.ADD.text -> res.add(Expression.Operation(Sign.ADD))
-                Sign.SUB.text -> res.add(Expression.Operation(Sign.SUB))
-                else -> res.add(Expression.Number(it.value.toDouble()))
+    private fun parseExpression(exp: String): List<Expression> =
+        EXPRESSION_MATCH_REGEX.findAll(exp)
+            .map {
+                when (it.value) {
+                    Sign.DIV.text -> Expression.Operation(Sign.DIV)
+                    Sign.MULT.text -> Expression.Operation(Sign.MULT)
+                    Sign.ADD.text -> Expression.Operation(Sign.ADD)
+                    Sign.SUB.text -> Expression.Operation(Sign.SUB)
+                    else -> Expression.Number(it.value.toDouble())
+                }
             }
-        }
-
-        return res
-    }
+            .toList()
 
 }
