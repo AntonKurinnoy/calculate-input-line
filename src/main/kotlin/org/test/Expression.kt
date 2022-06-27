@@ -29,35 +29,31 @@ class SimpleExpressionEvaluator : ExpressionEvaluator {
 
     private fun calculateMultAndDiv(expressions: List<Expression>): List<Expression> =
         expressions.foldIndexed(emptyList()) { index, acc, expression ->
-            when (index) {
-                0 -> acc + expression
-                else -> {
-                    when (expression) {
-                        is Expression.Operation -> if (expression.sign in listOf(Sign.DIV, Sign.MULT)) {
+            when {
+                index == 0 -> acc + expression
+                expression is Expression.Operation ->
+                    when (expression.sign) {
+                        in listOf(Sign.DIV, Sign.MULT) -> {
                             val result = acc.dropLast(1)
                             result + calculate(
                                 acc.last() as Expression.Number,
                                 expressions.elementAt(index + 1) as Expression.Number,
                                 expression
                             )
-                        } else {
-                            acc + expression
                         }
-                        is Expression.Number -> {
-                            val prevItem = expressions.elementAt(index - 1)
-                            when (prevItem) {
-                                is Expression.Operation -> if (prevItem.sign in listOf(Sign.ADD, Sign.SUB)) {
-                                    acc + expression
-                                } else {
-                                    acc
-                                }
-                                else -> {
-                                    acc
-                                }
-                            }
-                        }
+                        else -> acc + expression
+                    }
+                expression is Expression.Number -> {
+                    val prevItem = expressions.elementAt(index - 1)
+                    when {
+                        prevItem is Expression.Operation && prevItem.sign in listOf(
+                            Sign.ADD,
+                            Sign.SUB
+                        ) -> acc + expression
+                        else -> acc
                     }
                 }
+                else -> acc
             }
         }
 
