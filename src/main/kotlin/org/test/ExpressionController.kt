@@ -4,11 +4,10 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api")
-class ExpressionController {
+class ExpressionController(val expressionEvaluator: ExpressionEvaluator) {
 
     @PostMapping("/calculate-expression")
-    suspend fun evaluate(@RequestBody request: Request): Response {
-        return Response(SimpleExpressionEvaluator().evaluate(request.expression))
-    }
+    suspend fun evaluate(@RequestBody request: Request): Response =
+        Response(expressionEvaluator.evaluate(request.expression))
 
 }

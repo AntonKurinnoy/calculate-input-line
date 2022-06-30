@@ -1,5 +1,7 @@
 package org.test
 
+import org.springframework.stereotype.Component
+
 sealed class Expression(val text: String) {
     class Number(val value: Double) : Expression(value.toString())
     class Operation(val sign: Sign) : Expression(sign.text)
@@ -7,11 +9,11 @@ sealed class Expression(val text: String) {
 
 enum class Sign(val text: String) { DIV("/"), MULT("*"), ADD("+"), SUB("-") }
 
-
 interface ExpressionEvaluator {
     fun evaluate(exp: String): Double
 }
 
+@Component
 class SimpleExpressionEvaluator : ExpressionEvaluator {
     companion object {
         private val EXPRESSION_MATCH_REGEX = Regex("""((\d+)*[.]?(\d+))|([/,*,+,-])""")
@@ -20,8 +22,7 @@ class SimpleExpressionEvaluator : ExpressionEvaluator {
     override fun evaluate(exp: String): Double {
         val expressions = parseExpression(exp)
         val expressionWithoutMultAndDiv = calculateMultAndDiv(expressions)
-        val result = calculateAddAndSub(expressionWithoutMultAndDiv)
-        return when (result) {
+        return when (val result = calculateAddAndSub(expressionWithoutMultAndDiv)) {
             is Expression.Number -> result.value
             else -> throw IllegalStateException("Invalid expression $exp")
         }
