@@ -14,7 +14,7 @@ class SimpleExpressionEvaluator : ExpressionEvaluator {
         private val EXPRESSION_MATCH_REGEX = Regex("""((\d+)*[.]?(\d+))|([/,*,+,-])""")
     }
 
-    override fun evaluate(exp: String): Double {
+    override suspend fun evaluate(exp: String): Double {
         val expressions = parseExpression(exp)
         val expressionWithoutMultAndDiv = calculateMultAndDiv(expressions)
         return when (val result = calculateAddAndSub(expressionWithoutMultAndDiv)) {

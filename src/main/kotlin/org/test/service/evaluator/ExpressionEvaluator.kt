@@ -4,7 +4,7 @@ package org.test.service.evaluator
  * @author Anton Kurinnoy
  */
 interface ExpressionEvaluator {
-    fun evaluate(exp: String): Double
+    suspend fun evaluate(exp: String): Double
 }
 
 sealed class Expression(val text: String) {
