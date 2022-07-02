@@ -1,18 +1,13 @@
-package org.test
+package org.test.service.evaluator.simple
 
 import org.springframework.stereotype.Component
+import org.test.service.evaluator.Expression
+import org.test.service.evaluator.ExpressionEvaluator
+import org.test.service.evaluator.Sign
 
-sealed class Expression(val text: String) {
-    class Number(val value: Double) : Expression(value.toString())
-    class Operation(val sign: Sign) : Expression(sign.text)
-}
-
-enum class Sign(val text: String) { DIV("/"), MULT("*"), ADD("+"), SUB("-") }
-
-interface ExpressionEvaluator {
-    fun evaluate(exp: String): Double
-}
-
+/**
+ * @author Anton Kurinnoy
+ */
 @Component
 class SimpleExpressionEvaluator : ExpressionEvaluator {
     companion object {

@@ -19,4 +19,5 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("commons-io:commons-io:2.11.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 }
