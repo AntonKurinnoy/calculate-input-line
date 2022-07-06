@@ -19,7 +19,7 @@ class ExpressionController(
     suspend fun evaluate(@RequestBody request: RequestForm) = expressionEvaluatorService.evaluate(request).toDto()
 
     @PostMapping("/calculate-expressions")
-    suspend fun calculate(@RequestBody request: RequestListForm) = expressionEvaluatorService.evaluateList(request)
+    fun calculate(@RequestBody request: RequestListForm) = expressionEvaluatorService.evaluateList(request)
         .map { it.toDto() }
 
 
