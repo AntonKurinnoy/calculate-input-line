@@ -18,7 +18,7 @@ class MathJsExpressionEvaluator(mathJsProperties: MathJsProperties) : Expression
         .build()
 
     override suspend fun evaluate(exp: String): Double =
-        webClient.post()
+        webClient.get()
             .uri("?expr={exp}", exp)
             .retrieve()
             .awaitBody<String>()
